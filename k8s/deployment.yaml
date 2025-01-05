@@ -12,6 +12,8 @@ spec:
       labels:
         app: hs300etf-crawler
     spec:
+      nodeSelector:
+        kubernetes.io/hostname: 10.0.88.201
       containers:
       - name: hs300etf-crawler
         image: quantization:v2
@@ -20,4 +22,6 @@ spec:
           mountPath: /data
       volumes:
       - name: data-volume
-        emptyDir: {} 
+        hostPath:
+          path: /tmp/etf-strategy
+          type: DirectoryOrCreate 
