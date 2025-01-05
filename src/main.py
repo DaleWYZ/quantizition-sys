@@ -4,7 +4,17 @@ from datetime import datetime
 import os
 from strategies import MAStrategy, RSIStrategy, MACDStrategy, BollingerStrategy
 import warnings
-warnings.filterwarnings('ignore')
+import logging
+
+# 配置日志
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('/data/strategy.log'),
+        logging.StreamHandler()
+    ]
+)
 
 def get_etf_nav(symbol, name):
     try:
@@ -13,6 +23,10 @@ def get_etf_nav(symbol, name):
                                 start_date="20240101", 
                                 end_date=datetime.now().strftime("%Y%m%d"))
         
+        if df.empty:
+            print(f"警告：获取到的{name}数据为空")
+            return None
+            
         # 重命名列
         df.columns = ['日期', '开盘', '收盘', '最高', '最低', '成交量', '成交额', '振幅', '涨跌幅', '涨跌额', '换手率']
         
@@ -41,7 +55,7 @@ def get_zz500etf_nav():
     return get_etf_nav("510500", "中证500ETF")
 
 if __name__ == "__main__":
-    print("正在获取ETF数据...")
+    logging.info("开始执行策略分析...")
     
     # 获取ETF数据
     df_hs300 = get_hs300etf_nav()

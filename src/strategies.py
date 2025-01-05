@@ -3,20 +3,40 @@ import numpy as np
 from datetime import datetime
 import matplotlib.pyplot as plt
 import talib
+from abc import ABC, abstractmethod
+import time
+import logging
 
-class BaseStrategy:
+class BaseStrategy(ABC):
     def __init__(self, hs300_data, zz500_data):
         self.hs300 = hs300_data.copy()
         self.zz500 = zz500_data.copy()
         self.signals = pd.DataFrame(index=hs300_data.index)
         self.positions = pd.DataFrame(index=hs300_data.index)
         
+        # 预计算常用的技术指标
+        self._calculate_common_indicators()
+        
+    def _calculate_common_indicators(self):
+        """预计算常用技术指标，避免重复计算"""
+        # 计算移动平均线
+        for df in [self.hs300, self.zz500]:
+            df['MA5'] = df['收盘'].rolling(window=5).mean()
+            df['MA20'] = df['收盘'].rolling(window=20).mean()
+        
+    @abstractmethod
+    def generate_signals(self):
+        """每个策略类必须实现的信号生成方法"""
+        pass
+    
     def calculate_indicators(self):
         """计算基础指标"""
         # 计算相对强度比率
         self.signals['强度比'] = self.hs300['收盘'] / self.zz500['收盘']
         
     def backtest(self, initial_capital=1000000):
+        start_time = time.time()
+        
         # 初始化资金和持仓
         self.positions['hs300_pos'] = self.signals['hs300_signal'].shift(1)
         self.positions['zz500_pos'] = self.signals['zz500_signal'].shift(1)
@@ -34,6 +54,9 @@ class BaseStrategy:
         annual_return = total_return / len(self.positions) * 252
         sharpe_ratio = np.sqrt(252) * self.positions['total_returns'].mean() / self.positions['total_returns'].std()
         max_drawdown = (self.positions['cumulative_returns'] / self.positions['cumulative_returns'].cummax() - 1).min() * 100
+        
+        execution_time = time.time() - start_time
+        logging.info(f"策略回测耗时: {execution_time:.2f}秒")
         
         return {
             '总收益率(%)': total_return,
