@@ -1,14 +1,3 @@
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: hs300etf-data-pvc
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 1Gi
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -31,5 +20,4 @@ spec:
           mountPath: /data
       volumes:
       - name: data-volume
-        persistentVolumeClaim:
-          claimName: hs300etf-data-pvc 
+        emptyDir: {} 
