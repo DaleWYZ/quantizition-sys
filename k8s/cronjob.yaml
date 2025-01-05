@@ -16,6 +16,5 @@ spec:
               mountPath: /data
           volumes:
           - name: data-volume
-            persistentVolumeClaim:
-              claimName: hs300etf-data-pvc
+            emptyDir: {}
           restartPolicy: OnFailure 
