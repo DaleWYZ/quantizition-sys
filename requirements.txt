@@ -1,0 +1,2 @@
+akshare==1.12.1
+pandas==2.2.0 

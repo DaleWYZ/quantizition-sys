@@ -1,0 +1,21 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: hs300etf-crawler-cron
+spec:
+  schedule: "0 16 * * 1-5"  # 每个工作日下午4点执行
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: hs300etf-crawler
+            image: hs300etf:latest
+            volumeMounts:
+            - name: data-volume
+              mountPath: /data
+          volumes:
+          - name: data-volume
+            persistentVolumeClaim:
+              claimName: hs300etf-data-pvc
+          restartPolicy: OnFailure 

@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: hs300etf-data-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hs300etf-crawler
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hs300etf-crawler
+  template:
+    metadata:
+      labels:
+        app: hs300etf-crawler
+    spec:
+      containers:
+      - name: hs300etf-crawler
+        image: hs300etf:latest
+        volumeMounts:
+        - name: data-volume
+          mountPath: /data
+      volumes:
+      - name: data-volume
+        persistentVolumeClaim:
+          claimName: hs300etf-data-pvc 
